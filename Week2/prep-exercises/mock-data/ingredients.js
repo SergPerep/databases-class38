@@ -1,0 +1,26 @@
+const ingredients = [
+  { id: 1, name: "Condensed Milk" },
+  { id: 2, name: "Cream Cheese" },
+  { id: 3, name: "Lemon Juice" },
+  { id: 4, name: "Pie Crust" },
+  { id: 5, name: "Cherry Jam" },
+  { id: 6, name: "Brussels Sprouts" },
+  { id: 7, name: "Sesame Seeds" },
+  { id: 8, name: "Macaroni" },
+  { id: 9, name: "Butter" },
+  { id: 10, name: "Flour" },
+  { id: 11, name: "Pepper" },
+  { id: 12, name: "Milk" },
+  { id: 13, name: "Shredded Cheddar Cheese" },
+  { id: 14, name: "Eggs" },
+  { id: 15, name: "Soy Sauce" },
+  { id: 16, name: "Sugar" },
+  { id: 17, name: "Salt" },
+  { id: 18, name: "Olive Oil" },
+  { id: 19, name: "Unsweetened Cocoa Powder" },
+  { id: 20, name: "Vanilla" },
+  { id: 21, name: "Quick Oats" },
+  { id: 22, name: "Peanut Butter" },
+];
+
+export default ingredients;
