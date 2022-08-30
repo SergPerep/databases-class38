@@ -15,3 +15,6 @@ and this week to explain the changes.
 ## Discussion (Try to write answers to these questions in text, provide queries and commands when necessary)
 
 - If you want to add thousands of recipes to your database, what challenges do you foresee?
+  - Chaining multiple inserts to add a single recipe
+  - Returning keys to insert them into relational tables
+  - Checking for duplicates while inserting and returning a appropriate key (of a new record or of a duplicate)
