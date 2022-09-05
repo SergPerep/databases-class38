@@ -54,8 +54,7 @@ const fillUpTables = ({ isPrinting = false }) => {
   mentorship.forEach((item) => {
     const { mentor_id, protege_id } = item;
     db.query(
-      `INSERT INTO mentorship(mentor_id, protege_id)
-        VALUES (?, ?);`,
+      `UPDATE authors SET mentor = ? WHERE id = ?;`,
       [mentor_id, protege_id],
       (err) => {
         if (err) throw err.stack;

@@ -30,6 +30,17 @@ const createBasicTables = ({ isPrinting = false }) => {
     }
   );
 
+  // ADD MENTORS TO AUTHORS
+  db.query(
+    `ALTER TABLE authors
+      ADD COLUMN mentor INTEGER,
+      ADD FOREIGN KEY (mentor) REFERENCES authors(id);`,
+    (err) => {
+      if (err) throw err;
+      if (isPrinting) log.basic("-- Add 'mentor' column to 'authors' table'");
+    }
+  );
+
   // PAPERS
   db.query(
     `CREATE TABLE papers (
