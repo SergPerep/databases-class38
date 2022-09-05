@@ -21,6 +21,10 @@ CREATE TABLE authors (
     FOREIGN KEY (university_id) REFERENCES universities(id)
 );
 
+ALTER TABLE authors
+    ADD COLUMN mentor INTEGER,
+    ADD FOREIGN KEY (mentor) REFERENCES authors(id);
+
 CREATE TABLE papers (
     id INT PRIMARY KEY AUTO_INCREMENT, 
     title VARCHAR(255) UNIQUE NOT NULL, 
@@ -56,6 +60,11 @@ VALUES ("Title", "2020-11-11", "ICDSAA 2022: Data Science and Analytics Conferen
 INSERT INTO authors(name, university_id, date_of_birth, h_index, gender)
 VALUES ("John", 1, "2003-10-16", 19, "male");
 
+INSERT INTO authors(name, university_id, date_of_birth, h_index, gender)
+VALUES ("Ann", 1, "2003-10-16", 34, "female");
+
+UPDATE authors SET mentor = 4 WHERE id = 1;
+
 INSERT INTO mentorship(mentor_id, protege_id)
 VALUES (1, 2);
 
@@ -63,40 +72,36 @@ INSERT INTO publishment(paper_id, author_id) VALUES(1, 1);
 
 -- EXERCISE #3: JOINS
 -- Write a query that prints names of all authors and their corresponding mentors.
-WITH prev_res AS (
-    SELECT name as 'authors_name', protege_id, mentor_id FROM authors 
-    LEFT JOIN mentorship ON authors.id = mentorship.protege_id
-)
-
-SELECT authors_name AS 'Protege', 
-CASE
-    WHEN authors.name IS NULL
-    THEN '-'
-    ELSE authors.name
-END
-AS 'Mentor'
-FROM prev_res 
-LEFT JOIN authors ON mentor_id = authors.id;
+SELECT a.name AS 'Protege', 
+    CASE 
+        WHEN a.mentor IS NULL
+            THEN '-'
+        ELSE m.name 
+    END AS "Mentor"
+FROM authors a 
+LEFT JOIN authors m 
+ON a.mentor = m.id;
 
 -- Write a query that prints all columns of authors and their published paper_title. 
 -- If there is an author without any research_Papers, print the information of that author too.
 
-WITH prev_res AS (
-    SELECT author_id, title FROM publishment
-    JOIN papers ON paper_id = papers.id
-)
+SELECT authors.id as 'Id', name as 'Author', university_id, date_of_birth, h_index, gender, mentor, title AS 'Paper'
+FROM authors 
+LEFT JOIN (
+    SELECT author_id, id, title 
+    FROM publishment 
+    LEFT JOIN papers 
+    ON publishment.paper_id = papers.id
+    ) AS p
+ON authors.id = p.author_id;
 
-SELECT id, name, university_id, date_of_birth, h_index, gender, title as 'paper' FROM authors 
-LEFT JOIN prev_res ON id = author_id;
 
 -- EXERCISE #4: AGGREGATIVE FUNCTIONS
 -- All research papers and the number of authors that wrote that paper.
-WITH prev_res AS(
-    SELECT paper_id, name FROM publishment JOIN authors ON authors.id = author_id
-)
-
-SELECT title AS "Research paper", COUNT(*) AS 'Number of authors' FROM papers
-LEFT JOIN prev_res ON id = paper_id GROUP BY title;
+SELECT title AS "Research paper", COUNT(author_id) AS "Number of authors"
+FROM papers 
+LEFT JOIN publishment ON publishment.paper_id = papers.id 
+GROUP BY id;
 
 -- Sum of the research papers published by all female authors.
 SELECT COUNT(DISTINCT paper_id) AS 'sum' FROM publishment 
@@ -109,20 +114,18 @@ JOIN authors ON authors.university_id = universities.id GROUP BY universities.na
 
 -- Sum of the research papers of the authors per university.
 
-WITH uni_authors AS(
-    SELECT universities.name AS 'University', authors.id AS 'author_id', authors.name AS 'Authors'
-    FROM universities 
-    JOIN authors 
-    ON authors.university_id = universities.id
-), authors_papers AS(
-    SELECT author_id, COUNT(paper_id) AS 'number_of_papers'
-    FROM publishment 
-    GROUP BY author_id
-)
+SELECT universities.name AS 'University', COUNT(paper_id) AS 'Number of papers'
+FROM universities
+LEFT JOIN (
+    SELECT id, name, university_id, paper_id 
+    FROM authors
+    JOIN publishment 
+    ON publishment.author_id = authors.id
+) AS a 
+ON universities.id = a.university_id
+GROUP BY universities.name;
 
-SELECT university, SUM(number_of_papers) AS 'Number of papers' FROM uni_authors 
-JOIN authors_papers ON uni_authors.author_id = authors_papers.author_id
-GROUP BY university;
+
 
 -- Minimum and maximum of the h-index of all authors per university.
 SELECT universities.name AS 'University', MIN(h_index) AS 'Min h-index', MAX(h_index) AS 'Max h-index'
